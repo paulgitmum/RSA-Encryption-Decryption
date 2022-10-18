@@ -1,70 +1,51 @@
-# Getting Started with Create React App
+# RSA Encryption, Decryption 
+## Key Generation
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+We use the crypto standard library for generating the keys:
 
-## Available Scripts
+`const crypto = require("crypto");`
 
-In the project directory, you can run:
+// generate publickey and private key
 
-### `npm start`
+`const { publicKey, privateKey } = crypto.generateKeyPairSync("rsa", {
+  // The standard secure default length for RSA keys is 2048 bits
+  modulusLength: 2048,
+});`
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
 
-### `npm test`
+// The publicKey and privateKey variables will be used for encryption and decryption respectively
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Encryption
 
-### `npm run build`
+// This is the data we want to encrypt
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+`const data = "my secret data";`
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+`const encryptedData = crypto.publicEncrypt(
+  {
+    key: publicKey,
+    padding: crypto.constants.RSA_PKCS1_OAEP_PADDING,
+    oaepHash: "sha256",
+  },
+  // We convert the data string to a buffer using `Buffer.from`
+  Buffer.from(data)
+);`
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+`console.log("encypted data: ", encryptedData.toString("base64"));`
 
-### `npm run eject`
+## Decryption
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+// To decrypt the data, we need to use same hashing function and padding scheme that we used for encryption. 
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+`const decryptedData = crypto.privateDecrypt(
+  {
+    key: privateKey,
+    padding: crypto.constants.RSA_PKCS1_OAEP_PADDING,
+    oaepHash: "sha256",
+  },
+  encryptedData
+);`
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+`console.log("decrypted data: ", decryptedData.toString());`
